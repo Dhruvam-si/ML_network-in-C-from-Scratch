@@ -6,7 +6,16 @@ This project was built to understand every mathematical and engineering componen
 
 ---
 
-## Features
+## Project Status
+
+This repo contains two implementations:
+
+- **`xor.cpp`** — the original hardcoded 2→2→1 network. Complete, trained, and working (see results below).
+- **`matrix.h` + `xor2.cpp`** — a generalized rewrite using a from-scratch `Matrix` class, designed to support arbitrary layer counts and sizes instead of hardcoded neurons. Currently in progress: matrix operations, forward pass, and cost function are complete; backpropagation is being built out.
+
+---
+
+## Features (xor.cpp)
 
 - Feed Forward Neural Network (2 → 2 → 1)
 - Sigmoid Activation Function
@@ -56,9 +65,25 @@ Optimizer:
 ```
 .
 ├── main.cpp
+├── matrix.h        # Custom Matrix class (add, subtract, hadamard, transpose, multiply, applyFunction)
+├── xor.cpp         # Original hardcoded implementation
+├── xor2.cpp        # Generalized, matrix-based implementation (in progress)
 ├── xor.nn          # Saved model parameters
 └── README.md
 ```
+
+---
+
+## Matrix Class (`matrix.h`)
+
+A from-scratch `Matrix` class built to generalize the network beyond fixed neuron counts. Implements:
+
+- Addition, Subtraction, Hadamard (elementwise) product
+- Transpose
+- Matrix multiplication (dot-product based)
+- `applyFunction` — applies any `double(double)` function elementwise (e.g. sigmoid)
+
+Used as the foundation for a `Network` class that stores weights and biases as `vector<Matrix>`, so the number of layers is no longer hardcoded — architecture is defined by a single `layer_sizes` list (e.g. `{2, 2, 1}`).
 
 ---
 
@@ -127,7 +152,7 @@ The network is trained on the XOR truth table.
 
 ---
 
-## Sample Result
+## Sample Result (xor.cpp)
 
 ```
 Epoch: 10000
@@ -160,14 +185,14 @@ Predictions
 
 ## Future Improvements
 
-- Matrix-based implementation
-- Multiple hidden layers
+- Complete backpropagation for the generalized `Network` class
+- Weight/bias updates and full training loop for `xor2.cpp`
+- Multiple hidden layers, arbitrary depth
 - Softmax output
 - Cross-Entropy loss
 - Mini-batch Gradient Descent
 - MNIST Digit Recognition
-- Generic layer architecture
-- Model checkpoints
+- Model checkpoints (architecture + weights, not just weights)
 
 ---
 
@@ -178,7 +203,7 @@ Predictions
 - Eigen
 - Any Machine Learning Library
 
-Everything, including forward propagation, backpropagation, gradient computation, gradient descent, and model serialization, is implemented manually in C++.
+Everything, including matrix operations, forward propagation, backpropagation, gradient computation, gradient descent, and model serialization, is implemented manually in C++.
 
 ---
 

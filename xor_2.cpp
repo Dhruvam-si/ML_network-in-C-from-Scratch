@@ -78,14 +78,26 @@ double costCal(matrix output,matrix actual)
     return (summation/n);
 }
 
-void gradients(matrix actual)
+void gradients(matrix actual,matrix in)
 {
-    matrix one(1,1);
+    matrix one(1,1); // for 1- in sigmoid derivative
     one.mat[0][0]=1;
     matrix error = activations[1].subtract(actual);           // (a - actual)
     matrix one_minus_a = one.subtract(activations[1]);         // (1 - a)
     matrix deriv = activations[1].hadamard(one_minus_a);        // a*(1-a)
-    matrix delta_output = error.hadamard(deriv);                // (a-actual) * a*(1-a)
+    matrix delta_output = error.hadamard(deriv);    // (a-actual) * a*(1-a)
+    matrix one_minus_hidden = one.subtract(activations[0]); //(1-acitvations[0])
+    matrix hidden_deriv = activations[0].hadamard(one_minus_hidden);//acitvations[0](1-acitvations[0])
+    matrix dW_output(2,1);// weights (w5 and w6 in w[1])
+    dW_output = activations[0].transpose().multiply(delta_output);    
+    matrix dB_output(1,1); //biases   
+    dB_output=delta_output;
+    matrix delta_hidden(1,2);
+    delta_hidden = delta_output.multiply(weights[1].transpose());
+    delta_hidden = delta_hidden.hadamard(hidden_deriv);
+    matrix dB_hidden = delta_hidden;
+    matrix dW_hidden(2,2);
+    dW_hidden=in.transpose().multiply(delta_hidden);
 }
 matrix ret()
     {
