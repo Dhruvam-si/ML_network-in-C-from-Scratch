@@ -18,6 +18,8 @@ class Network
     vector<matrix>biases;
     vector<matrix>z;
     vector<matrix>activations;
+    vector<matrix> gradients_w;
+    vector<matrix>gradients_b;
      Network(vector<int>layer_sizes)
      {
         int layer = 0;
@@ -78,26 +80,38 @@ double costCal(matrix output,matrix actual)
     return (summation/n);
 }
 
-void gradients(matrix actual,matrix in)
+void gradients(matrix actual, matrix in)
 {
-    matrix one(1,1); // for 1- in sigmoid derivative
-    one.mat[0][0]=1;
-    matrix error = activations[1].subtract(actual);           // (a - actual)
-    matrix one_minus_a = one.subtract(activations[1]);         // (1 - a)
-    matrix deriv = activations[1].hadamard(one_minus_a);        // a*(1-a)
-    matrix delta_output = error.hadamard(deriv);    // (a-actual) * a*(1-a)
-    matrix one_minus_hidden = one.subtract(activations[0]); //(1-acitvations[0])
-    matrix hidden_deriv = activations[0].hadamard(one_minus_hidden);//acitvations[0](1-acitvations[0])
-    matrix dW_output(2,1);// weights (w5 and w6 in w[1])
-    dW_output = activations[0].transpose().multiply(delta_output);    
-    matrix dB_output(1,1); //biases   
-    dB_output=delta_output;
-    matrix delta_hidden(1,2);
-    delta_hidden = delta_output.multiply(weights[1].transpose());
-    delta_hidden = delta_hidden.hadamard(hidden_deriv);
-    matrix dB_hidden = delta_hidden;
-    matrix dW_hidden(2,2);
-    dW_hidden=in.transpose().multiply(delta_hidden);
+    vector<matrix> delta(weights.size());
+    gradients_w.assign(weights.size(), matrix(1,1));  // pre-sized, placeholder shape, overwritten below
+    gradients_b.assign(weights.size(), matrix(1,1));
+
+    for (int i = weights.size()-1; i >= 0; i--)
+    {
+        matrix ones(1, activations[i].cols);
+        for (int c = 0; c < ones.cols; c++) ones.mat[0][c] = 1;
+
+        matrix deriv = activations[i].hadamard(ones.subtract(activations[i]));
+
+        if (i == weights.size()-1)
+        {
+            matrix error = activations[i].subtract(actual);
+            delta[i] = error.hadamard(deriv);
+        }
+        else
+        {
+            delta[i] = delta[i+1].multiply(weights[i+1].transpose()).hadamard(deriv);
+        }
+
+        matrix prev_activation = (i == 0) ? in : activations[i-1];
+        gradients_w[i] = prev_activation.transpose().multiply(delta[i]);
+        gradients_b[i] = delta[i];
+    }
+}
+void update(double lr)
+{
+    
+
 }
 matrix ret()
     {
